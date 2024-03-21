@@ -4,6 +4,9 @@
 #####################################
 import os
 import time
+import requests
+
+
 #####################################
 
 class TempUserData:
@@ -15,3 +18,10 @@ class TempUserData:
         if user_id not in self.__user_data.keys():
             self.__user_data.update({user_id: [None, None, None]})
         return self.__user_data
+
+
+class DbAct:
+    def __init__(self, db, config):
+        super(DbAct, self).__init__()
+        self.__db = db
+        self.__config = config

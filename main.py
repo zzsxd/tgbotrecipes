@@ -8,9 +8,11 @@ config_name = 'secrets.json'
 import os
 import telebot
 import platform
+from threading import Lock
 from config_parser import ConfigParser
 from frontend import Bot_inline_btns
-from backend import TempUserData
+from backend import TempUserData, DbAct
+from db import DB
 
 
 def is_admin(user_id, admin_ids):
@@ -49,8 +51,9 @@ def main():
 
     @bot.callback_query_handler(func=lambda call: True)
     def callback(call):
+        user = call.message.from_user.id
+        button_text = call.message.text
         user_id = call.message.chat.id
-        name_user = call.message.from_user.first_name
         buttons = Bot_inline_btns()
         if call.data == "go":
             bot.send_message(call.message.chat.id,
@@ -58,7 +61,7 @@ def main():
                              reply_markup=buttons.age_btns())
         elif call.data == "seven_months" or call.data == "eight_months" or call.data == "nine_months" or call.data == "ten_months" or call.data == "eleven_months" or call.data == "one_and_more":
             bot.send_message(call.message.chat.id,
-                             'Отлично! Теперь ты можешь выбрать прием пищи, и я отправлю рецепт в зависимости от возраста ребенка! ',
+                             'Отлично! Теперь ты можешь выбрать прием пищи, и я отправлю рецепт в зависимости от возраста ребенка!',
                              reply_markup=buttons.meal_btns())
         elif call.data == 'breakfast':
             bot.send_message(call.message.chat.id,
@@ -94,7 +97,10 @@ def main():
                              reply_markup=buttons.start_btns())
         elif call.data == 'newrecept':
             bot.send_message(call.message.chat.id, 'Выберите для какого возраста!', reply_markup=buttons.new_recept())
-            temp_user_data.temp_data(user_id)[user_id][0] = 0
+            # должна добавляться в бд инфа о кнопке нажатой и ожидать когда пользователь нажмет на кнопку
+            bot.send_message(call.message.chat.id, 'Выберите категорию!', reply_markup=buttons.new_recept2())
+            # так же добавляется инфа о нажатой кнопки, чтобы потом эту инфу выдать пользователю
+            # и потом по tempuserdate добавить инфу о названии еды, фотку еды и сам рецепт
     bot.polling(none_stop=True)
 
 
@@ -103,6 +109,8 @@ if '__main__' == __name__:
     work_dir = os.path.dirname(os.path.realpath(__file__))
     config = ConfigParser(f'{work_dir}/{config_name}', os_type)
     temp_user_data = TempUserData()
+    db = DB(config.get_config()['db_file_name'], Lock())
+    db_actions = DbAct(db, config)
     bot = telebot.TeleBot(config.get_config()['tg_api'])
     admin_ids = config.get_config()['admins']
     main()
