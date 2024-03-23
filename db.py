@@ -24,8 +24,8 @@ class DB:
             self.__cursor.execute('''
                 CREATE TABLE recipes(
                 row_id INTEGER PRIMARY KEY autoincrement not null, 
-                age TEXT, 
-                category TEXT, 
+                age INTEGER, 
+                category INTEGER, 
                 photo BLOB, 
                 title TEXT, 
                 recipe TEXT)
