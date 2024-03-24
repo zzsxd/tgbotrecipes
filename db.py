@@ -22,6 +22,17 @@ class DB:
             self.__db = sqlite3.connect(self.__db_path, check_same_thread=False)
             self.__cursor = self.__db.cursor()
             self.__cursor.execute('''
+                        CREATE TABLE users(
+                        row_id INTEGER primary key autoincrement not null,
+                        user_id INTEGER,
+                        first_name TEXT,
+                        last_name TEXT,
+                        nick_name TEXT,
+                        is_admin BOOL,
+                        UNIQUE(user_id)
+                        )
+                        ''')
+            self.__cursor.execute('''
                 CREATE TABLE recipes(
                 row_id INTEGER PRIMARY KEY autoincrement not null, 
                 age INTEGER, 

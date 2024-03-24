@@ -20,22 +20,22 @@ class Bot_inline_btns:
         return self.__markup
 
     def age_btns(self):
-        seven = types.InlineKeyboardButton('7 месяцев', callback_data="seven_months")
-        eight = types.InlineKeyboardButton('8 месяцев', callback_data="eight_months")
-        nine = types.InlineKeyboardButton('9 месяцев', callback_data="nine_months")
-        ten = types.InlineKeyboardButton('10 месяцев', callback_data="ten_months")
-        eleven = types.InlineKeyboardButton('11 месяцев', callback_data="eleven_months")
-        one_and_more = types.InlineKeyboardButton('1 годик и старше', callback_data="one_and_more")
+        seven = types.InlineKeyboardButton('7 месяцев', callback_data="get7")
+        eight = types.InlineKeyboardButton('8 месяцев', callback_data="get8")
+        nine = types.InlineKeyboardButton('9 месяцев', callback_data="get9")
+        ten = types.InlineKeyboardButton('10 месяцев', callback_data="get10")
+        eleven = types.InlineKeyboardButton('11 месяцев', callback_data="get11")
+        one_and_more = types.InlineKeyboardButton('1 годик и старше', callback_data="get+")
         self.__markup.add(seven, eight, nine, ten, eleven, one_and_more)
         return self.__markup
 
     def meal_btns(self):
-        breakfast = types.InlineKeyboardButton('Завтрак', callback_data="breakfast")
-        garnish = types.InlineKeyboardButton('Гарнир', callback_data="garnir")
-        soups = types.InlineKeyboardButton('Супы', callback_data="soups")
-        meat = types.InlineKeyboardButton('Мясо', callback_data="meat")
-        fish = types.InlineKeyboardButton('Рыба', callback_data='fish')
-        snack = types.InlineKeyboardButton('Перекус', callback_data='snack')
+        breakfast = types.InlineKeyboardButton('Завтрак', callback_data="kal1")
+        garnish = types.InlineKeyboardButton('Гарнир', callback_data="kal2")
+        soups = types.InlineKeyboardButton('Супы', callback_data="kal3")
+        meat = types.InlineKeyboardButton('Мясо', callback_data="kal4")
+        fish = types.InlineKeyboardButton('Рыба', callback_data='kal5')
+        snack = types.InlineKeyboardButton('Перекус', callback_data='kal6')
         self.__markup.add(breakfast, garnish, soups, meat, fish, snack)
         return self.__markup
 
@@ -45,27 +45,32 @@ class Bot_inline_btns:
         self.__markup.add(next_recipe, main_menu)
         return self.__markup
 
+    def back_btn(self):
+        main_menu = types.InlineKeyboardButton('Главное меню', callback_data='mainmenu')
+        self.__markup.add(main_menu)
+        return self.__markup
+
     def admin_btns(self):
         new_recept = types.InlineKeyboardButton('Создать рецепт', callback_data='newrecept')
         self.__markup.add(new_recept)
         return self.__markup
 
     def new_recept(self):
-        seven = types.InlineKeyboardButton('7 месяцев', callback_data="seven")
-        eight = types.InlineKeyboardButton('8 месяцев', callback_data="eight")
-        nine = types.InlineKeyboardButton('9 месяцев', callback_data="nine")
-        ten = types.InlineKeyboardButton('10 месяцев', callback_data="ten")
-        eleven = types.InlineKeyboardButton('11 месяцев', callback_data="eleven")
-        one_and_more = types.InlineKeyboardButton('1 годик и старше', callback_data="one")
+        seven = types.InlineKeyboardButton('7 месяцев', callback_data="recept7")
+        eight = types.InlineKeyboardButton('8 месяцев', callback_data="recept8")
+        nine = types.InlineKeyboardButton('9 месяцев', callback_data="recept9")
+        ten = types.InlineKeyboardButton('10 месяцев', callback_data="recept10")
+        eleven = types.InlineKeyboardButton('11 месяцев', callback_data="recept11")
+        one_and_more = types.InlineKeyboardButton('1 годик и старше', callback_data="recept+")
         self.__markup.add(seven, eight, nine, ten, eleven, one_and_more)
         return self.__markup
 
     def new_recept2(self):
-        breakfast = types.InlineKeyboardButton('Завтрак', callback_data="breakfast1")
-        garnish = types.InlineKeyboardButton('Гарнир', callback_data="garnir2")
-        soups = types.InlineKeyboardButton('Супы', callback_data="soups3")
-        meat = types.InlineKeyboardButton('Мясо', callback_data="meat4")
-        fish = types.InlineKeyboardButton('Рыба', callback_data='fish5')
-        snack = types.InlineKeyboardButton('Перекус', callback_data='snack6')
+        breakfast = types.InlineKeyboardButton('Завтрак', callback_data="govno1")
+        garnish = types.InlineKeyboardButton('Гарнир', callback_data="govno2")
+        soups = types.InlineKeyboardButton('Супы', callback_data="govno3")
+        meat = types.InlineKeyboardButton('Мясо', callback_data="govno4")
+        fish = types.InlineKeyboardButton('Рыба', callback_data='govno5')
+        snack = types.InlineKeyboardButton('Перекус', callback_data='govno6')
         self.__markup.add(breakfast, garnish, soups, meat, fish, snack)
         return self.__markup
