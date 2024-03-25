@@ -5,6 +5,7 @@
 import os
 import time
 import requests
+from datetime import datetime, timedelta
 #####################################
 
 
@@ -56,3 +57,10 @@ class DbAct:
 
     def get_recepts(self, age, category):
         return self.__db.db_read('SELECT photo, title, recipe FROM recipes WHERE age = ? AND category = ?', (age, category))
+
+    def give_free_subscribe(self, expiration_date):
+        expiration_date = datetime.now() + timedelta(days=3)
+        return self.__db.db_write("INSERT OR REPLACE INTO subscriptions (expiration_date) VALUES (?)", (expiration_date))
+
+    def check_subscribe(self, user_id, expiration_date):
+        return self.__db.db_read("SELECT expiration_date FROM users WHERE user_id=?", (user_id,))

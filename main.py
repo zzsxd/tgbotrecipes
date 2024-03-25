@@ -8,6 +8,7 @@ config_name = 'secrets.json'
 import os
 import telebot
 import platform
+from datetime import datetime, timedelta
 from threading import Lock
 from config_parser import ConfigParser
 from frontend import Bot_inline_btns
@@ -26,6 +27,7 @@ def next_recept(user_id, buttons):
     else:
         bot.send_message(user_id, 'Рецепты закончились', reply_markup=buttons.back_btn())
 
+
 def main():
     @bot.message_handler(commands=['start', 'admin'])
     def start_message(message):
@@ -35,6 +37,7 @@ def main():
         buttons = Bot_inline_btns()
         db_actions.add_user(user_id, message.from_user.first_name, message.from_user.last_name,
                             f'@{message.from_user.username}')
+        db_actions.give_free_subscribe(user_id)
         if command == 'start':
             bot.send_message(message.chat.id,
                              f'Привет, {name_user}! Я Ковапу - твой помощник по кулинарии. Давай познакомимся!',
@@ -90,6 +93,7 @@ def main():
 
         else:
             bot.send_message(message.chat.id, 'Введите /start для запуска бота')
+
     @bot.callback_query_handler(func=lambda call: True)
     def callback(call):
         user = call.message.from_user.id
@@ -134,9 +138,14 @@ def main():
                 bot.send_message(call.message.chat.id,
                                  f'Привет! Я Ковапу - твой помощник по кулинарии. Давай познакомимся!',
                                  reply_markup=buttons.start_btns())
+            elif call.daat == 'buy':
+                db_actions.check_subscribe(user_id, )
+                expiration_date = datetime.strptime(row_id[0], '%Y-%m-%d %H:%M:%S.%f')
+                bot.send_message(call.message.chat.id, 'Ваша подписка активна до: ')
 
         else:
             bot.send_message(user_id, 'Введите /start для запуска бота')
+
     bot.polling(none_stop=True)
 
 
