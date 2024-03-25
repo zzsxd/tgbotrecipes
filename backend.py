@@ -3,9 +3,10 @@
 #               zzsxd               #
 #####################################
 import os
+from datetime import datetime, timedelta
 import time
 import requests
-from datetime import datetime, timedelta
+import schedule
 #####################################
 
 
@@ -32,7 +33,7 @@ class DbAct:
                 is_admin = True
             else:
                 is_admin = False
-            self.__db.db_write('INSERT INTO users (user_id, first_name, last_name, nick_name, is_admin) VALUES (?, ?, ?, ?, ?)', (user_id, first_name, last_name, nick_name, is_admin))
+            self.__db.db_write('INSERT INTO users (user_id, first_name, last_name, nick_name, is_admin, expiration_date) VALUES (?, ?, ?, ?, ?, ?)', (user_id, first_name, last_name, nick_name, is_admin, int(time.time()+604800)))
 
     def user_is_existed(self, user_id):
         data = self.__db.db_read('SELECT count(*) FROM users WHERE user_id = ?', (user_id, ))
@@ -60,7 +61,19 @@ class DbAct:
 
     def give_free_subscribe(self, expiration_date):
         expiration_date = datetime.now() + timedelta(days=3)
-        return self.__db.db_write("INSERT OR REPLACE INTO subscriptions (expiration_date) VALUES (?)", (expiration_date))
+        return self.__db.db_write("INSERT OR REPLACE INTO users (expiration_date) VALUES (?)", (expiration_date,))
 
-    def check_subscribe(self, user_id, expiration_date):
-        return self.__db.db_read("SELECT expiration_date FROM users WHERE user_id=?", (user_id,))
+    def check_subscribe(self):
+        return self.__db.db_read("SELECT user_id, expiration_date FROM users", ())
+
+    def ban_user(self, user_id):
+        check = self.__db.db_read("SELECT endsubscribe, is_admin FROM users WHERE user_id=?", (user_id,))[0][0]
+        if not check[0] and check[1] == 0:
+            self.__db.db_write("UPDATE users SET endsubscribe= ? WHERE user_id=?", (True, user_id))
+
+    def have_ban(self, user_id):
+        is_ban = self.__db.db_read("SELECT endsubscribe FROM users WHERE user_id=?", (user_id,))[0][0]
+        if is_ban == 1:
+            return True
+        else:
+            return False

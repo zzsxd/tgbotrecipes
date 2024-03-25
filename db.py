@@ -30,6 +30,7 @@ class DB:
                         nick_name TEXT,
                         is_admin BOOL,
                         expiration_date TEXT,
+                        endsubscribe BOOL,
                         UNIQUE(user_id)
                         )
                         ''')

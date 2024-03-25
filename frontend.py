@@ -74,3 +74,25 @@ class Bot_inline_btns:
         snack = types.InlineKeyboardButton('Перекус', callback_data='govno6')
         self.__markup.add(breakfast, garnish, soups, meat, fish, snack)
         return self.__markup
+    def buy_subscribe(self):
+        month = types.InlineKeyboardButton('Месяц - 299₽', callback_data="month")
+        threemonth = types.InlineKeyboardButton('3 месяца - 599₽', callback_data='3month')
+        year = types.InlineKeyboardButton('Год - 1199₽', callback_data='year')
+        self.__markup.add(month, threemonth, year)
+        return self.__markup
+
+    def confirm_data_month(self):
+        yes = types.InlineKeyboardButton('Подтверждаю', callback_data='confirm1')
+        cancel = types.InlineKeyboardButton('Отмена', callback_data='mainmenu')
+        self.__markup.add(yes, cancel)
+        return self.__markup
+    def confirm_data_3month(self):
+        yes = types.InlineKeyboardButton('Подтверждаю', callback_data='confirm2')
+        cancel = types.InlineKeyboardButton('Отмена', callback_data='mainmenu')
+        self.__markup.add(yes, cancel)
+        return self.__markup
+    def confirm_data_year(self):
+        yes = types.InlineKeyboardButton('Подтверждаю', callback_data='confirm3')
+        cancel = types.InlineKeyboardButton('Отмена', callback_data='mainmenu')
+        self.__markup.add(yes, cancel)
+        return self.__markup
