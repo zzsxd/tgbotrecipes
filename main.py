@@ -19,17 +19,17 @@ from backend import TempUserData, DbAct
 from db import DB
 
 
-# def func():
-#     data = db_actions.check_subscribe()
-#     for i in data:
-#         if int(time.time()) >= i[1]:
-#             db_actions.ban_user(i[0])
+def func():
+    data = db_actions.check_subscribe()
+    for i in data:
+        if int(time.time()) >= int(i[1]):
+            db_actions.ban_user(i[0])
 
 
-# def schedule_check():
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
+def schedule_check():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 def next_recept(user_id, buttons):
@@ -75,50 +75,45 @@ def main():
         user_id = message.chat.id
         buttons = Bot_inline_btns()
         if db_actions.user_is_existed(user_id):
-            if db_actions.have_ban(user_id):
-                code = temp_user_data.temp_data(user_id)[user_id][0]
-                match code:
-                    case 0:
-                        bot.send_message(message.chat.id, 'Выберите категорию!')
-                        temp_user_data.temp_data(user_id)[user_id][0] = 1
-                    case 1:
-                        bot.send_message(message.chat.id, 'Название добавлено!')
-                        bot.send_message(message.chat.id, 'Отправьте рецепт! (одим сообщением)')
-                        temp_user_data.temp_data(user_id)[user_id][0] = 2
-                    case 2:
-                        bot.send_message(message.chat.id, 'Данные сохранены')
-                    case 5:
-                        if photo is not None:
-                            temp_user_data.temp_data(user_id)[user_id][0] = 6
-                            photo_id = photo[-1].file_id
-                            photo_file = bot.get_file(photo_id)
-                            photo_bytes = bot.download_file(photo_file.file_path)
-                            temp_user_data.temp_data(user_id)[user_id][3][2] = photo_bytes
-                            bot.send_message(user_id, 'Отправьте название блюда')
-                        else:
-                            bot.send_message(user_id, '❌Это не фото❌')
-                    case 6:
-                        if user_input is not None:
-                            temp_user_data.temp_data(user_id)[user_id][3][3] = user_input
-                            temp_user_data.temp_data(user_id)[user_id][0] = 7
-                            bot.send_message(user_id, 'Введите рецепт')
-                        else:
-                            bot.send_message(user_id, '❌Это не текст❌')
-                    case 7:
-                        if user_input is not None:
-                            temp_user_data.temp_data(user_id)[user_id][3][4] = user_input
-                            db_actions.add_recept(temp_user_data.temp_data(user_id)[user_id][3])
-                            temp_user_data.temp_data(user_id)[user_id][0] = None
-                            bot.send_message(user_id, '✅Рецепт успешно добавлен✅')
-                        else:
-                            bot.send_message(user_id, '❌Это не текст❌')
-            else:
-                bot.send_message(message.chat.id, 'У вас закончилась пробная подписка!\n',
-                                 reply_markup=buttons.buy_subscribe())
-
+            code = temp_user_data.temp_data(user_id)[user_id][0]
+            match code:
+                case 0:
+                    bot.send_message(message.chat.id, 'Выберите категорию!')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 1
+                case 1:
+                    bot.send_message(message.chat.id, 'Название добавлено!')
+                    bot.send_message(message.chat.id, 'Отправьте рецепт! (одим сообщением)')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 2
+                case 2:
+                    bot.send_message(message.chat.id, 'Данные сохранены')
+                case 5:
+                    if photo is not None:
+                        temp_user_data.temp_data(user_id)[user_id][0] = 6
+                        photo_id = photo[-1].file_id
+                        photo_file = bot.get_file(photo_id)
+                        photo_bytes = bot.download_file(photo_file.file_path)
+                        temp_user_data.temp_data(user_id)[user_id][3][2] = photo_bytes
+                        bot.send_message(user_id, 'Отправьте название блюда')
+                    else:
+                        bot.send_message(user_id, '❌Это не фото❌')
+                case 6:
+                    if user_input is not None:
+                        temp_user_data.temp_data(user_id)[user_id][3][3] = user_input
+                        temp_user_data.temp_data(user_id)[user_id][0] = 7
+                        bot.send_message(user_id, 'Введите рецепт')
+                    else:
+                        bot.send_message(user_id, '❌Это не текст❌')
+                case 7:
+                    if user_input is not None:
+                        temp_user_data.temp_data(user_id)[user_id][3][4] = user_input
+                        db_actions.add_recept(temp_user_data.temp_data(user_id)[user_id][3])
+                        temp_user_data.temp_data(user_id)[user_id][0] = None
+                        bot.send_message(user_id, '✅Рецепт успешно добавлен✅')
+                    else:
+                        bot.send_message(user_id, '❌Это не текст❌')
         else:
-            bot.send_message(message.chat.id, 'Введите /start для запуска бота'
-    )
+            bot.send_message(message.chat.id, 'Введите /start для запуска бота')
+
     @bot.callback_query_handler(func=lambda call: True)
     def callback(call):
         user = call.message.from_user.id
@@ -171,30 +166,30 @@ def main():
             else:
                 bot.send_message(call.message.chat.id, 'У вас закончилась пробная подписка!\n',
                                  reply_markup=buttons.buy_subscribe())
-        elif call.data == 'export':
-            db_actions.db_export_xlsx()
-            bot.send_document(call.message.chat.id, open(xlsx_path, 'rb'))
-            os.remove(xlsx_path)
-        elif call.data == 'buy':
-            bot.send_message('Ваша подписка активна до: ', reply_markup=buttons.buy_subscribe())
-        elif call.data == 'month':
-            bot.send_message('Вы подтверждаете следующие данные?\n'
-                             'Подписка на 1 месяц\n'
-                             'Цена: 299₽', reply_markup=buttons.confirm_data_month())
-        elif call.data == '3month':
-            bot.send_message('Вы подтверждаете следующие данные?\n'
-                             'Подписка на 3 месяца\n'
-                             'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
-        elif call.data == 'year':
-            bot.send_message('Вы подтверждаете следующие данные?\n'
-                             'Подписка на год\n'
-                             'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
-        elif call.data == 'confirm1':
-            pass  # отправка чека на оплату + добавление подписки при успешной оплате
-        elif call.data == 'confirm2':
-            pass  # отправка чека на оплату + добавление подписки при успешной оплате
-        elif call.data == 'confirm3':
-            pass  # отправка чека на оплату + добавление подписки при успешной оплате
+            if call.data == 'export':
+                db_actions.db_export_xlsx()
+                bot.send_document(call.message.chat.id, open(xlsx_path, 'rb'))
+                os.remove(xlsx_path)
+            elif call.data == 'buy':
+                bot.send_message('Ваша подписка активна до: ', reply_markup=buttons.buy_subscribe())
+            elif call.data == 'month':
+                bot.send_message('Вы подтверждаете следующие данные?\n'
+                                 'Подписка на 1 месяц\n'
+                                 'Цена: 299₽', reply_markup=buttons.confirm_data_month())
+            elif call.data == '3month':
+                bot.send_message('Вы подтверждаете следующие данные?\n'
+                                 'Подписка на 3 месяца\n'
+                                 'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
+            elif call.data == 'year':
+                bot.send_message('Вы подтверждаете следующие данные?\n'
+                                 'Подписка на год\n'
+                                 'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
+            elif call.data == 'confirm1':
+                pass  # отправка чека на оплату + добавление подписки при успешной оплате
+            elif call.data == 'confirm2':
+                pass  # отправка чека на оплату + добавление подписки при успешной оплате
+            elif call.data == 'confirm3':
+                pass  # отправка чека на оплату + добавление подписки при успешной оплате
         else:
             bot.send_message(user_id, 'Введите /start для запуска бота')
 
@@ -208,8 +203,8 @@ if '__main__' == __name__:
     temp_user_data = TempUserData()
     db = DB(config.get_config()['db_file_name'], Lock())
     db_actions = DbAct(db, config, xlsx_path)
-    # threading.Thread(target=schedule_check, args=()).start()
-    # schedule.every().second.do(func)
+    threading.Thread(target=schedule_check, args=()).start()
+    schedule.every().second.do(func)
     bot = telebot.TeleBot(config.get_config()['tg_api'])
     admin_ids = config.get_config()['admins']
     main()
