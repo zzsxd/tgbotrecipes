@@ -175,6 +175,7 @@ def main():
             db_actions.db_export_xlsx()
             bot.send_document(call.message.chat.id, open(xlsx_path, 'rb'))
             os.remove(xlsx_path)
+        # тут должно работать всегда независимо от подписки (даже если забанен чел)
         elif call.data == 'buy':
             bot.send_message('Ваша подписка активна до: ', reply_markup=buttons.buy_subscribe())
         elif call.data == 'month':
