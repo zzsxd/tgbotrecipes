@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import time
 import requests
 import schedule
+from openpyxl import load_workbook
+import pandas as pd
 #####################################
 
 
@@ -22,7 +24,7 @@ class TempUserData:
 
 
 class DbAct:
-    def __init__(self, db, config):
+    def __init__(self, db, config, path_xlsx):
         super(DbAct, self).__init__()
         self.__db = db
         self.__config = config
@@ -77,3 +79,16 @@ class DbAct:
             return True
         else:
             return False
+
+    def db_export_xlsx(self):
+        d = {'Имя': [], 'Фамилия': [], 'Никнейм': []}
+        users = self.__db.db_read('SELECT first_name, last_name, nick_name FROM users', ())
+        if len(users) > 0:
+            for user in users:
+                for info in range(len(list(user))):
+                    d[self.__fields[info]].append(user[info])
+                for i in range(3):
+                    for j in range(3):
+                        d[self.__fields[j]].append(None)
+            df = pd.DataFrame(d)
+            df.to_excel(self.__dump_path_xlsx, sheet_name='пользователи', index=False)

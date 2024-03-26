@@ -19,6 +19,7 @@ class Bot_inline_btns:
         self.__markup.add(go, buy)
         return self.__markup
 
+
     def age_btns(self):
         seven = types.InlineKeyboardButton('7 месяцев', callback_data="get7")
         eight = types.InlineKeyboardButton('8 месяцев', callback_data="get8")
@@ -52,7 +53,9 @@ class Bot_inline_btns:
 
     def admin_btns(self):
         new_recept = types.InlineKeyboardButton('Создать рецепт', callback_data='newrecept')
-        self.__markup.add(new_recept)
+        export = types.InlineKeyboardButton('Экспорт БД', callback_data='export')
+        newsletter = types.InlineKeyboardButton('Создать рассылку', callback_data='newsletter')
+        self.__markup.add(new_recept, export, newsletter)
         return self.__markup
 
     def new_recept(self):

@@ -4,6 +4,7 @@
 #               zzsxd               #
 #####################################
 config_name = 'secrets.json'
+xlsx_path = 'database.xlsx'
 #####################################
 import os
 import telebot
@@ -18,17 +19,17 @@ from backend import TempUserData, DbAct
 from db import DB
 
 
-def func():
-    data = db_actions.check_subscribe()
-    for i in data:
-        if int(time.time()) >= i[1]:
-            db_actions.ban_user(i[0])
+# def func():
+#     data = db_actions.check_subscribe()
+#     for i in data:
+#         if int(time.time()) >= i[1]:
+#             db_actions.ban_user(i[0])
 
 
-def schedule_check():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+# def schedule_check():
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(1)
 
 
 def next_recept(user_id, buttons):
@@ -52,20 +53,20 @@ def main():
         buttons = Bot_inline_btns()
         db_actions.add_user(user_id, message.from_user.first_name, message.from_user.last_name,
                             f'@{message.from_user.username}')
-        db_actions.give_free_subscribe(user_id)
-        if db_actions.have_ban(user_id):
-            if command == 'start':
+        # db_actions.give_free_subscribe(user_id)
+        # if db_actions.have_ban(user_id):
+        if command == 'start':
+            bot.send_message(message.chat.id,
+                             f'Привет, {name_user}! Я Ковапу - твой помощник по кулинарии. Давай познакомимся!',
+                             reply_markup=buttons.start_btns())
+        elif db_actions.user_is_admin(user_id):
+            if command == 'admin':
                 bot.send_message(message.chat.id,
-                                 f'Привет, {name_user}! Я Ковапу - твой помощник по кулинарии. Давай познакомимся!',
-                                 reply_markup=buttons.start_btns())
-            elif db_actions.user_is_admin(user_id):
-                if command == 'admin':
-                    bot.send_message(message.chat.id,
-                                     f'Привет, {name_user}!',
-                                     reply_markup=buttons.admin_btns())
-        else:
-            bot.send_message(message.chat.id, 'У вас закончилась пробная подписка!\n',
-                             reply_markup=buttons.buy_subscribe())
+                                 f'Привет, {name_user}!',
+                                 reply_markup=buttons.admin_btns())
+        # else:
+        #     bot.send_message(message.chat.id, 'У вас закончилась пробная подписка!\n',
+        #                      reply_markup=buttons.buy_subscribe())
 
     @bot.message_handler(content_types=['text', 'photo'])
     def text(message):
@@ -116,8 +117,8 @@ def main():
                                  reply_markup=buttons.buy_subscribe())
 
         else:
-            bot.send_message(message.chat.id, 'Введите /start для запуска бота')
-
+            bot.send_message(message.chat.id, 'Введите /start для запуска бота'
+    )
     @bot.callback_query_handler(func=lambda call: True)
     def callback(call):
         user = call.message.from_user.id
@@ -170,6 +171,10 @@ def main():
             else:
                 bot.send_message(call.message.chat.id, 'У вас закончилась пробная подписка!\n',
                                  reply_markup=buttons.buy_subscribe())
+        elif call.data == 'export':
+            db_actions.db_export_xlsx()
+            bot.send_document(call.message.chat.id, open(xlsx_path, 'rb'))
+            os.remove(xlsx_path)
         elif call.data == 'buy':
             bot.send_message('Ваша подписка активна до: ', reply_markup=buttons.buy_subscribe())
         elif call.data == 'month':
@@ -202,9 +207,9 @@ if '__main__' == __name__:
     config = ConfigParser(f'{work_dir}/{config_name}', os_type)
     temp_user_data = TempUserData()
     db = DB(config.get_config()['db_file_name'], Lock())
-    db_actions = DbAct(db, config)
-    threading.Thread(target=schedule_check, args=()).start()
-    schedule.every().second.do(func)
+    db_actions = DbAct(db, config, xlsx_path)
+    # threading.Thread(target=schedule_check, args=()).start()
+    # schedule.every().second.do(func)
     bot = telebot.TeleBot(config.get_config()['tg_api'])
     admin_ids = config.get_config()['admins']
     main()
