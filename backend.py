@@ -36,7 +36,7 @@ class DbAct:
                 is_admin = True
             else:
                 is_admin = False
-            self.__db.db_write('INSERT INTO users (user_id, first_name, last_name, nick_name, is_admin, expiration_date) VALUES (?, ?, ?, ?, ?, ?)', (user_id, first_name, last_name, nick_name, is_admin, int(time.time()+604800)))
+            self.__db.db_write('INSERT INTO users (user_id, first_name, last_name, nick_name, is_admin, expiration_date) VALUES (?, ?, ?, ?, ?, ?)', (user_id, first_name, last_name, nick_name, is_admin, int(time.time()+259200)))
 
     def user_is_existed(self, user_id):
         data = self.__db.db_read('SELECT count(*) FROM users WHERE user_id = ?', (user_id, ))
@@ -62,16 +62,12 @@ class DbAct:
     def get_recepts(self, age, category):
         return self.__db.db_read('SELECT photo, title, recipe FROM recipes WHERE age = ? AND category = ?', (age, category))
 
-    def give_free_subscribe(self, expiration_date):
-        expiration_date = datetime.now() + timedelta(days=3)
-        return self.__db.db_write("INSERT OR REPLACE INTO users (expiration_date) VALUES (?)", (expiration_date,))
-
     def check_subscribe(self):
         return self.__db.db_read("SELECT user_id, expiration_date FROM users WHERE is_admin = 0", ())
 
     def ban_user(self, user_id):
         check = self.__db.db_read("SELECT endsubscribe FROM users WHERE user_id = ?", (user_id,))[0][0]
-        if check == 0:
+        if check is None or check == 0:
             self.__db.db_write("UPDATE users SET endsubscribe = ? WHERE user_id = ?", (True, user_id))
 
     def have_ban(self, user_id):
