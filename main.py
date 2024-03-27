@@ -6,7 +6,6 @@
 import types
 
 config_name = 'secrets.json'
-xlsx_path = 'database.xlsx'
 #####################################
 import os
 import telebot
@@ -158,10 +157,10 @@ def main():
                     db_actions.check_subscribe()  # тут должна выдавать до какого времени активна подписка
                     bot.send_message(user_id, 'Ваша подписка активна до: ',
                                      reply_markup=buttons.buy_subscribe())
-            elif call.data == 'export':
-                db_actions.db_export_xlsx()
-                bot.send_document(call.message.chat.id, open(xlsx_path, 'rb'))
-                os.remove(xlsx_path)
+                elif call.data == 'export':
+                    db_actions.db_export_xlsx()
+                    bot.send_document(call.message.chat.id, open(config.get_config()['xlsx_path'], 'rb'))
+                    os.remove(config.get_config()['xlsx_path'])
             elif call.data == 'buy':
                 bot.send_message(user_id, 'Ваша подписка активна до: ', reply_markup=buttons.buy_subscribe())
             elif call.data == 'month':
@@ -177,11 +176,11 @@ def main():
                                  'Подписка на год\n'
                                  'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
             elif call.data == 'confirm1':
-                bot.send_invoice(user_id, title='Подписка на 1 месяц', description='Подписка на 1 месяц для "Бота с рецептами"', prices=[types.LabeledPrice('Оплата товара', 299)], currency='RUB')
+                bot.send_invoice(user_id, title='Подписка на 1 месяц', description='Подписка на 1 месяц для "Бота с рецептами"', prices=['Оплата товара', 299], currency='RUB')
             elif call.data == 'confirm2':
-                bot.send_invoice(user_id, title='Подписка на 3 месяца', description='Подписка на 3 месяца для "Бота с рецептами"', prices=[types.LabeledPrice('Оплата товара', 599)], currency='RUB')
+                bot.send_invoice(user_id, title='Подписка на 3 месяца', description='Подписка на 3 месяца для "Бота с рецептами"', prices=['Оплата товара', 599], currency='RUB')
             elif call.data == 'confirm3':
-                bot.send_invoice(user_id, title='Подписка на 1 год', description='Подписка на год для "Бота с рецептами"', prices=[types.LabeledPrice('Оплата товара', 1199)], currency='RUB')
+                bot.send_invoice(user_id, title='Подписка на 1 год', description='Подписка на год для "Бота с рецептами"', prices=['Оплата товара', 1199], currency='RUB')
             else:
                 bot.send_message(user_id, 'У вас закончилась пробная подписка!\n',
                                  reply_markup=buttons.buy_subscribe())
@@ -197,7 +196,7 @@ if '__main__' == __name__:
     config = ConfigParser(f'{work_dir}/{config_name}', os_type)
     temp_user_data = TempUserData()
     db = DB(config.get_config()['db_file_name'], Lock())
-    db_actions = DbAct(db, config, xlsx_path)
+    db_actions = DbAct(db, config, config.get_config()['xlsx_path'])
     threading.Thread(target=schedule_check, args=()).start()
     schedule.every().second.do(func)
     bot = telebot.TeleBot(config.get_config()['tg_api'])
