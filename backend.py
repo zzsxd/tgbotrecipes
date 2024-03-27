@@ -28,6 +28,7 @@ class DbAct:
         super(DbAct, self).__init__()
         self.__db = db
         self.__config = config
+        self.__fields = {0: "Имя", 1: 'Фамилия', 2: 'Никнейм'}
 
     def add_user(self, user_id, first_name, last_name, nick_name):
         if not self.user_is_existed(user_id):
@@ -66,12 +67,12 @@ class DbAct:
         return self.__db.db_write("INSERT OR REPLACE INTO users (expiration_date) VALUES (?)", (expiration_date,))
 
     def check_subscribe(self):
-        return self.__db.db_read("SELECT user_id, expiration_date FROM users", ())
+        return self.__db.db_read("SELECT user_id, expiration_date FROM users WHERE is_admin = 0", ())
 
     def ban_user(self, user_id):
-        check = self.__db.db_read("SELECT endsubscribe, is_admin FROM users WHERE user_id=?", (user_id,))[0][0]
-        if not check[0] and check[1] == 0:
-            self.__db.db_write("UPDATE users SET endsubscribe= ? WHERE user_id=?", (True, user_id))
+        check = self.__db.db_read("SELECT endsubscribe FROM users WHERE user_id = ?", (user_id,))[0][0]
+        if check == 0:
+            self.__db.db_write("UPDATE users SET endsubscribe = ? WHERE user_id = ?", (True, user_id))
 
     def have_ban(self, user_id):
         is_ban = self.__db.db_read("SELECT endsubscribe FROM users WHERE user_id=?", (user_id,))[0][0]
@@ -87,8 +88,5 @@ class DbAct:
             for user in users:
                 for info in range(len(list(user))):
                     d[self.__fields[info]].append(user[info])
-                for i in range(3):
-                    for j in range(3):
-                        d[self.__fields[j]].append(None)
             df = pd.DataFrame(d)
-            df.to_excel(self.__dump_path_xlsx, sheet_name='пользователи', index=False)
+            df.to_excel(self.__config.get_config()['xlsx_path'], sheet_name='пользователи', index=False)
