@@ -3,6 +3,8 @@
 #                SBR                #
 #               zzsxd               #
 #####################################
+import types
+
 config_name = 'secrets.json'
 xlsx_path = 'database.xlsx'
 #####################################
@@ -175,11 +177,11 @@ def main():
                                  'Подписка на год\n'
                                  'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
             elif call.data == 'confirm1':
-                pass  # отправка чека на оплату + добавление подписки при успешной оплате
+                bot.send_invoice(user_id, title='Подписка на 1 месяц', description='Подписка на 1 месяц для "Бота с рецептами"', prices=[types.LabeledPrice('Оплата товара', 299)], currency='RUB')
             elif call.data == 'confirm2':
-                pass  # отправка чека на оплату + добавление подписки при успешной оплате
+                bot.send_invoice(user_id, title='Подписка на 3 месяца', description='Подписка на 3 месяца для "Бота с рецептами"', prices=[types.LabeledPrice('Оплата товара', 599)], currency='RUB')
             elif call.data == 'confirm3':
-                pass  # отправка чека на оплату + добавление подписки при успешной оплате
+                bot.send_invoice(user_id, title='Подписка на 1 год', description='Подписка на год для "Бота с рецептами"', prices=[types.LabeledPrice('Оплата товара', 1199)], currency='RUB')
             else:
                 bot.send_message(user_id, 'У вас закончилась пробная подписка!\n',
                                  reply_markup=buttons.buy_subscribe())
