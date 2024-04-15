@@ -6,6 +6,7 @@
 import types
 
 config_name = 'secrets.json'
+group_id = -1002138706559
 #####################################
 import os
 import telebot
@@ -69,6 +70,7 @@ def main():
         photo = message.photo
         user_input = message.text
         user_id = message.chat.id
+        buttons = Bot_inline_btns()
         if db_actions.user_is_existed(user_id):
             if db_actions.user_is_admin(user_id):
                 code = temp_user_data.temp_data(user_id)[user_id][0]
@@ -107,6 +109,42 @@ def main():
                             bot.send_message(user_id, '✅Рецепт успешно добавлен✅')
                         else:
                             bot.send_message(user_id, '❌Это не текст❌')
+                    case 10:
+                        if user_input is not None:
+                            topic_id = telebot.TeleBot.create_forum_topic(bot, chat_id=group_id,
+                                                                          name=f'{message.from_user.first_name} '
+                                                                               f'{message.from_user.last_name} ПОПОЛНЕНИЕ БАЛАНСА',
+                                                                          icon_color=0x6FB9F0).message_thread_id
+                            bot.forward_message(chat_id=group_id, from_chat_id=message.chat.id, message_id=message.id,
+                                                message_thread_id=topic_id)
+                            bot.send_message(user_id, 'Отлично! Мы проверим информацию и вы получите доступ к боту!')
+                            bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
+                                                       'Покупка подписки на 1 месяц за 299 рублей!\n\n'
+                                                       'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
+                    case 11:
+                        if user_input is not None:
+                            topic_id = telebot.TeleBot.create_forum_topic(bot, chat_id=group_id,
+                                                                          name=f'{message.from_user.first_name} '
+                                                                               f'{message.from_user.last_name} ПОПОЛНЕНИЕ БАЛАНСА',
+                                                                          icon_color=0x6FB9F0).message_thread_id
+                            bot.forward_message(chat_id=group_id, from_chat_id=message.chat.id, message_id=message.id,
+                                                message_thread_id=topic_id)
+                            bot.send_message(user_id, 'Отлично! Мы проверим информацию и вы получите доступ к боту!')
+                            bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
+                                                       'Покупка подписки на 3 месяца за 599 рублей!\n\n'
+                                                       'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
+                    case 12:
+                        if user_input is not None:
+                            topic_id = telebot.TeleBot.create_forum_topic(bot, chat_id=group_id,
+                                                                          name=f'{message.from_user.first_name} '
+                                                                               f'{message.from_user.last_name} ПОПОЛНЕНИЕ БАЛАНСА',
+                                                                          icon_color=0x6FB9F0).message_thread_id
+                            bot.forward_message(chat_id=group_id, from_chat_id=message.chat.id, message_id=message.id,
+                                                message_thread_id=topic_id)
+                            bot.send_message(user_id, 'Отлично! Мы проверим информацию и вы получите доступ к боту!')
+                            bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
+                                                   'Покупка подписки на 1 год за 1199 рублей!\n\n'
+                                                   'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
         else:
             bot.send_message(message.chat.id, 'Введите /start для запуска бота')
 
@@ -161,29 +199,43 @@ def main():
                     db_actions.db_export_xlsx()
                     bot.send_document(call.message.chat.id, open(config.get_config()['xlsx_path'], 'rb'))
                     os.remove(config.get_config()['xlsx_path'])
-            elif call.data == 'buy':
-                bot.send_message(user_id, 'Ваша подписка активна до: ', reply_markup=buttons.buy_subscribe())
-            elif call.data == 'month':
-                bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
-                                 'Подписка на 1 месяц\n'
-                                 'Цена: 299₽', reply_markup=buttons.confirm_data_month())
-            elif call.data == '3month':
-                bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
-                                 'Подписка на 3 месяца\n'
-                                 'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
-            elif call.data == 'year':
-                bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
-                                 'Подписка на год\n'
-                                 'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
-            elif call.data == 'confirm1':
-                bot.send_invoice(user_id, title='Подписка на 1 месяц', description='Подписка на 1 месяц для "Бота с рецептами"', prices=['Оплата товара', 299], currency='RUB')
-            elif call.data == 'confirm2':
-                bot.send_invoice(user_id, title='Подписка на 3 месяца', description='Подписка на 3 месяца для "Бота с рецептами"', prices=['Оплата товара', 599], currency='RUB')
-            elif call.data == 'confirm3':
-                bot.send_invoice(user_id, title='Подписка на 1 год', description='Подписка на год для "Бота с рецептами"', prices=['Оплата товара', 1199], currency='RUB')
-            else:
-                bot.send_message(user_id, 'У вас закончилась пробная подписка!\n',
-                                 reply_markup=buttons.buy_subscribe())
+                elif call.data == 'month':
+                    bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
+                                     'Подписка на 1 месяц\n'
+                                     'Цена: 299₽', reply_markup=buttons.confirm_data_month())
+                elif call.data == '3month':
+                    bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
+                                     'Подписка на 3 месяца\n'
+                                     'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
+                elif call.data == 'year':
+                    bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
+                                     'Подписка на 1 год\n'
+                                     'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
+                elif call.data == 'confirm1':
+                    bot.send_message(user_id, 'Подписка на 1 месяц, за 299₽\n\n'
+                                              'Вам необходимо отправить 299₽ по номеру карты - \n\n'
+                                              'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 10
+                elif call.data == 'confirm2':
+                    bot.send_message(user_id, 'Подписка на 3 месяца, за 599₽\n\n'
+                                              'Вам необходимо отправить 599₽ по номеру карты - \n\n'
+                                              'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 11
+                elif call.data == 'confirm3':
+                    bot.send_message(user_id, 'Подписка на 1 месяц, за 1199₽\n\n'
+                                              'Вам необходимо отправить 1199₽ по номеру карты - \n\n'
+                                              'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
+                    temp_user_data.temp_data(user_id)[user_id][0] = 12
+                elif call.data == 'accept':
+                    bot.send_message(chat_id=db_actions.get_user_id_from_topic(call.message.reply_to_message.id),
+                                     text='Оплата принята!\n\n'
+                                          'Можете пользоваться ботом!')
+                elif call.data == 'deny':
+                    bot.send_message(db_actions.get_user_id_from_topic(call.message.reply_to_message.id),
+                                     'Оплата не принята! Попробуйте еще раз!')
+                else:
+                    bot.send_message(user_id, 'У вас закончилась пробная подписка!\n',
+                                     reply_markup=buttons.buy_subscribe())
         else:
             bot.send_message(user_id, 'Введите /start для запуска бота')
 
