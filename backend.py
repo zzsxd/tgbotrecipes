@@ -65,6 +65,11 @@ class DbAct:
     def check_subscribe(self):
         return self.__db.db_read("SELECT user_id, expiration_date FROM users WHERE is_admin = 0", ())
 
+    def get_user_id_from_topic(self, topic_id):
+        data = self.__db.db_read("SELECT user_id FROM users WHERE topic_review_id = ?", (topic_id, ))
+        if len(data) > 0:
+            return data[0][0]
+
     def ban_user(self, user_id):
         check = self.__db.db_read("SELECT endsubscribe FROM users WHERE user_id = ?", (user_id,))[0][0]
         if check is None or check == 0:
