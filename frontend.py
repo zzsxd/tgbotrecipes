@@ -55,7 +55,8 @@ class Bot_inline_btns:
         new_recept = types.InlineKeyboardButton('Создать рецепт', callback_data='newrecept')
         export = types.InlineKeyboardButton('Экспорт БД', callback_data='export')
         newsletter = types.InlineKeyboardButton('Создать рассылку', callback_data='newsletter')
-        self.__markup.add(new_recept, export, newsletter)
+        gay = types.InlineKeyboardButton('Выдать подписку', callback_data='give_promoute')
+        self.__markup.add(new_recept, export, newsletter, gay)
         return self.__markup
 
     def new_recept(self):
@@ -81,6 +82,13 @@ class Bot_inline_btns:
         month = types.InlineKeyboardButton('Месяц - 299₽', callback_data="month")
         threemonth = types.InlineKeyboardButton('3 месяца - 599₽', callback_data='3month')
         year = types.InlineKeyboardButton('Год - 1199₽', callback_data='year')
+        self.__markup.add(month, threemonth, year)
+        return self.__markup
+
+    def give_promoute(self):
+        month = types.InlineKeyboardButton('Месяц', callback_data=f"fisting1")
+        threemonth = types.InlineKeyboardButton('3 месяца', callback_data=f'fisting2')
+        year = types.InlineKeyboardButton('Год', callback_data=f'fisting3')
         self.__markup.add(month, threemonth, year)
         return self.__markup
 

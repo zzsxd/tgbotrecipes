@@ -49,19 +49,11 @@ class DB:
             self.__cursor = self.__db.cursor()
 
     def db_write(self, queri, args):
-        self.set_lock()
-        self.__cursor.execute(queri, args)
-        self.__db.commit()
-        self.realise_lock()
+        with self.__lock:
+            self.__cursor.execute(queri, args)
+            self.__db.commit()
 
     def db_read(self, queri, args):
-        self.set_lock()
-        self.__cursor.execute(queri, args)
-        self.realise_lock()
-        return self.__cursor.fetchall()
-
-    def set_lock(self):
-        self.__lock.acquire(True)
-
-    def realise_lock(self):
-        self.__lock.release()
+        with self.__lock:
+            self.__cursor.execute(queri, args)
+            return self.__cursor.fetchall()

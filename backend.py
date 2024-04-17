@@ -19,7 +19,7 @@ class TempUserData:
 
     def temp_data(self, user_id):
         if user_id not in self.__user_data.keys():
-            self.__user_data.update({user_id: [None, None, None, [None, None, None, None, None], None]})
+            self.__user_data.update({user_id: [None, None, None, [None, None, None, None, None], None, None]})
         return self.__user_data
 
 
@@ -56,8 +56,21 @@ class DbAct:
                 status = False
             return status
 
+    def update_fisting(self, state, tg_nick):
+        match state:
+            case '1':
+                new_fisting = time.time() + 2629746
+            case '2':
+                new_fisting = time.time() + 2629746*3
+            case '3':
+                new_fisting = time.time() + 2629746*12
+        self.__db.db_write('UPDATE users SET expiration_date = ?, endsubscribe = ? WHERE nick_name = ?', (int(new_fisting), False, tg_nick))
+
     def add_recept(self, data):
         self.__db.db_write('INSERT INTO recipes (age, category, photo, title, recipe) VALUES (?, ?, ?, ?, ?)', data)
+
+    def get_exp_date(self, user_id):
+        return int(self.__db.db_read('SELECT expiration_date FROM users WHERE user_id = ?', (user_id, ))[0][0])
 
     def get_recepts(self, age, category):
         return self.__db.db_read('SELECT photo, title, recipe FROM recipes WHERE age = ? AND category = ?', (age, category))

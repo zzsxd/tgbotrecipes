@@ -4,6 +4,7 @@
 #               zzsxd               #
 #####################################
 import types
+from datetime import datetime
 
 config_name = 'secrets.json'
 group_id = -1002138706559
@@ -145,6 +146,12 @@ def main():
                             bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
                                                    'Покупка подписки на 1 год за 1199 рублей!\n\n'
                                                    'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
+                    case 13:
+                        if user_input is not None:
+                            temp_user_data.temp_data(user_id)[user_id][5] = user_input
+                            bot.send_message(user_id, 'Выберите длительность', reply_markup=buttons.give_promoute())
+                        else:
+                            bot.send_message(user_id, 'you pidor')
         else:
             bot.send_message(message.chat.id, 'Введите /start для запуска бота')
 
@@ -153,21 +160,34 @@ def main():
         user_id = call.message.chat.id
         buttons = Bot_inline_btns()
         if db_actions.user_is_existed(user_id):
+            code = temp_user_data.temp_data(user_id)[user_id][0]
+            if db_actions.user_is_admin(user_id):
+                if call.data == 'newrecept':
+                    temp_user_data.temp_data(user_id)[user_id][0] = 3
+                    bot.send_message(user_id, 'Выберите для какого возраста!',
+                                     reply_markup=buttons.new_recept())
+                elif call.data == 'give_promoute':
+                    temp_user_data.temp_data(user_id)[user_id][0] = 13
+                    bot.send_message(user_id, 'Введите ник пользователя которому выдать подписку')
+                elif call.data[:6] == 'recept' and code == 3:
+                    temp_user_data.temp_data(user_id)[user_id][0] = 4
+                    temp_user_data.temp_data(user_id)[user_id][3][0] = call.data[6:]
+                    bot.send_message(user_id, 'Выберите категорию!', reply_markup=buttons.new_recept2())
+                elif call.data[:5] == 'govno' and code == 4:
+                    temp_user_data.temp_data(user_id)[user_id][0] = 5
+                    temp_user_data.temp_data(user_id)[user_id][3][1] = call.data[5:]
+                    bot.send_message(user_id, 'Отправьте обложку нового рецепта!')
+                elif call.data[:7] == 'fisting':
+                    try:
+                        db_actions.update_fisting(call.data[7:], temp_user_data.temp_data(user_id)[user_id][5])
+                        bot.send_message(user_id, 'Операция успешно завершена')
+                    except:
+                        bot.send_message(user_id, 'такой пользователь не существует')
+                elif call.data == 'export':
+                    db_actions.db_export_xlsx()
+                    bot.send_document(call.message.chat.id, open(config.get_config()['xlsx_path'], 'rb'))
+                    os.remove(config.get_config()['xlsx_path'])
             if not db_actions.have_ban(user_id):
-                code = temp_user_data.temp_data(user_id)[user_id][0]
-                if db_actions.user_is_admin(user_id):
-                    if call.data == 'newrecept':
-                        temp_user_data.temp_data(user_id)[user_id][0] = 3
-                        bot.send_message(user_id, 'Выберите для какого возраста!',
-                                         reply_markup=buttons.new_recept())
-                    elif call.data[:6] == 'recept' and code == 3:
-                        temp_user_data.temp_data(user_id)[user_id][0] = 4
-                        temp_user_data.temp_data(user_id)[user_id][3][0] = call.data[6:]
-                        bot.send_message(user_id, 'Выберите категорию!', reply_markup=buttons.new_recept2())
-                    elif call.data[:5] == 'govno' and code == 4:
-                        temp_user_data.temp_data(user_id)[user_id][0] = 5
-                        temp_user_data.temp_data(user_id)[user_id][3][1] = call.data[5:]
-                        bot.send_message(user_id, 'Отправьте обложку нового рецепта!')
                 if call.data == "go":
                     temp_user_data.temp_data(user_id)[user_id][0] = 8
                     bot.send_message(call.message.chat.id,
@@ -191,51 +211,46 @@ def main():
                     bot.send_message(user_id,
                                      f'Привет! Я Ковапу - твой помощник по кулинарии. Давай познакомимся!',
                                      reply_markup=buttons.start_btns())
-                elif call.data == 'buy':
-                    db_actions.check_subscribe()  # тут должна выдавать до какого времени активна подписка
-                    bot.send_message(user_id, 'Ваша подписка активна до: ',
-                                     reply_markup=buttons.buy_subscribe())
-                elif call.data == 'export':
-                    db_actions.db_export_xlsx()
-                    bot.send_document(call.message.chat.id, open(config.get_config()['xlsx_path'], 'rb'))
-                    os.remove(config.get_config()['xlsx_path'])
-                elif call.data == 'month':
-                    bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
-                                     'Подписка на 1 месяц\n'
-                                     'Цена: 299₽', reply_markup=buttons.confirm_data_month())
-                elif call.data == '3month':
-                    bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
-                                     'Подписка на 3 месяца\n'
-                                     'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
-                elif call.data == 'year':
-                    bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
-                                     'Подписка на 1 год\n'
-                                     'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
-                elif call.data == 'confirm1':
-                    bot.send_message(user_id, 'Подписка на 1 месяц, за 299₽\n\n'
-                                              'Вам необходимо отправить 299₽ по номеру карты - \n\n'
-                                              'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
-                    temp_user_data.temp_data(user_id)[user_id][0] = 10
-                elif call.data == 'confirm2':
-                    bot.send_message(user_id, 'Подписка на 3 месяца, за 599₽\n\n'
-                                              'Вам необходимо отправить 599₽ по номеру карты - \n\n'
-                                              'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
-                    temp_user_data.temp_data(user_id)[user_id][0] = 11
-                elif call.data == 'confirm3':
-                    bot.send_message(user_id, 'Подписка на 1 месяц, за 1199₽\n\n'
-                                              'Вам необходимо отправить 1199₽ по номеру карты - \n\n'
-                                              'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
-                    temp_user_data.temp_data(user_id)[user_id][0] = 12
-                elif call.data == 'accept':
-                    bot.send_message(chat_id=db_actions.get_user_id_from_topic(call.message.reply_to_message.id),
-                                     text='Оплата принята!\n\n'
-                                          'Можете пользоваться ботом!')
-                elif call.data == 'deny':
-                    bot.send_message(db_actions.get_user_id_from_topic(call.message.reply_to_message.id),
-                                     'Оплата не принята! Попробуйте еще раз!')
-                else:
-                    bot.send_message(user_id, 'У вас закончилась пробная подписка!\n',
-                                     reply_markup=buttons.buy_subscribe())
+            if call.data == 'buy':
+                db_actions.check_subscribe()  # тут должна выдавать до какого времени активна подписка
+                exp_date = db_actions.get_exp_date(user_id)
+                bot.send_message(user_id,
+                                 f'Ваша подписка активна до: {datetime.utcfromtimestamp(exp_date).strftime("%Y-%m-%d %H:%M")}',
+                                 reply_markup=buttons.buy_subscribe())
+            elif call.data == 'month':
+                bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
+                                          'Подписка на 1 месяц\n'
+                                          'Цена: 299₽', reply_markup=buttons.confirm_data_month())
+            elif call.data == '3month':
+                bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
+                                          'Подписка на 3 месяца\n'
+                                          'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
+            elif call.data == 'year':
+                bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
+                                          'Подписка на 1 год\n'
+                                          'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
+            elif call.data == 'confirm1':
+                bot.send_message(user_id, 'Подписка на 1 месяц, за 299₽\n\n'
+                                          'Вам необходимо отправить 299₽ по номеру карты - \n\n'
+                                          'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
+                temp_user_data.temp_data(user_id)[user_id][0] = 10
+            elif call.data == 'confirm2':
+                bot.send_message(user_id, 'Подписка на 3 месяца, за 599₽\n\n'
+                                          'Вам необходимо отправить 599₽ по номеру карты - \n\n'
+                                          'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
+                temp_user_data.temp_data(user_id)[user_id][0] = 11
+            elif call.data == 'confirm3':
+                bot.send_message(user_id, 'Подписка на 1 месяц, за 1199₽\n\n'
+                                          'Вам необходимо отправить 1199₽ по номеру карты - \n\n'
+                                          'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
+                temp_user_data.temp_data(user_id)[user_id][0] = 12
+            elif call.data == 'accept':
+                bot.send_message(chat_id=db_actions.get_user_id_from_topic(call.message.reply_to_message.id),
+                                 text='Оплата принята!\n\n'
+                                      'Можете пользоваться ботом!')
+            elif call.data == 'deny':
+                bot.send_message(db_actions.get_user_id_from_topic(call.message.reply_to_message.id),
+                                 'Оплата не принята! Попробуйте еще раз!')
         else:
             bot.send_message(user_id, 'Введите /start для запуска бота')
 
