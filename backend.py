@@ -56,15 +56,16 @@ class DbAct:
                 status = False
             return status
 
-    def update_fisting(self, state, tg_nick):
+    def update_fisting(self, user_id, state):
+        print(state)
         match state:
-            case '1':
+            case 0:
                 new_fisting = time.time() + 2629746
-            case '2':
+            case 1:
                 new_fisting = time.time() + 2629746*3
-            case '3':
+            case 2:
                 new_fisting = time.time() + 2629746*12
-        self.__db.db_write('UPDATE users SET expiration_date = ?, endsubscribe = ? WHERE nick_name = ?', (int(new_fisting), False, tg_nick))
+        self.__db.db_write('UPDATE users SET expiration_date = ?, endsubscribe = ? WHERE user_id = ?', (int(new_fisting), False, user_id))
 
     def add_recept(self, data):
         self.__db.db_write('INSERT INTO recipes (age, category, photo, title, recipe) VALUES (?, ?, ?, ?, ?)', data)

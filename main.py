@@ -121,7 +121,7 @@ def main():
                             bot.send_message(user_id, 'Отлично! Мы проверим информацию и вы получите доступ к боту!')
                             bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
                                                        'Покупка подписки на 1 месяц за 299 рублей!\n\n'
-                                                       'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
+                                                       'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns(user_id))
                     case 11:
                         if user_input is not None:
                             topic_id = telebot.TeleBot.create_forum_topic(bot, chat_id=group_id,
@@ -133,7 +133,7 @@ def main():
                             bot.send_message(user_id, 'Отлично! Мы проверим информацию и вы получите доступ к боту!')
                             bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
                                                        'Покупка подписки на 3 месяца за 599 рублей!\n\n'
-                                                       'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
+                                                       'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns(user_id))
                     case 12:
                         if user_input is not None:
                             topic_id = telebot.TeleBot.create_forum_topic(bot, chat_id=group_id,
@@ -144,7 +144,7 @@ def main():
                                                 message_thread_id=topic_id)
                             bot.send_message(group_id, message_thread_id=topic_id, text='Покупка подписка!\n\n'
                                                    'Покупка подписки на 1 год за 1199 рублей!\n\n'
-                                                   'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns())
+                                                   'Данные пользователя предоставлены выше, проверьте информацию и нажмите соответствующую кнопку.', reply_markup=buttons.manager_btns(user_id))
                             bot.send_message(user_id, 'Отлично! Мы проверим информацию и вы получите доступ к боту!')
                     case 13:
                         if user_input is not None:
@@ -159,6 +159,16 @@ def main():
     def callback(call):
         user_id = call.message.chat.id
         buttons = Bot_inline_btns()
+        if call.data[:6] == 'accept':
+            client_id = int(call.data[6:])
+            db_actions.update_fisting(client_id, temp_user_data.temp_data(client_id)[client_id][5])
+            bot.send_message(chat_id=call.data[6:],
+                             text='Оплата принята!\n\n'
+                                  'Можете пользоваться ботом!')
+
+        elif call.data[:4] == 'deny':
+            bot.send_message(call.data[4:],
+                             'Оплата не принята! Попробуйте еще раз!')
         if db_actions.user_is_existed(user_id):
             code = temp_user_data.temp_data(user_id)[user_id][0]
             if db_actions.user_is_admin(user_id):
@@ -218,14 +228,17 @@ def main():
                                  f'Ваша подписка активна до: {datetime.utcfromtimestamp(exp_date).strftime("%Y-%m-%d %H:%M")}',
                                  reply_markup=buttons.buy_subscribe())
             elif call.data == 'month':
+                temp_user_data.temp_data(user_id)[user_id][5] = 0
                 bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
                                           'Подписка на 1 месяц\n'
                                           'Цена: 299₽', reply_markup=buttons.confirm_data_month())
             elif call.data == '3month':
+                temp_user_data.temp_data(user_id)[user_id][5] = 1
                 bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
                                           'Подписка на 3 месяца\n'
                                           'Цена: 599₽', reply_markup=buttons.confirm_data_3month())
             elif call.data == 'year':
+                temp_user_data.temp_data(user_id)[user_id][5] = 2
                 bot.send_message(user_id, 'Вы подтверждаете следующие данные?\n'
                                           'Подписка на 1 год\n'
                                           'Цена: 1199₽', reply_markup=buttons.confirm_data_year())
@@ -240,20 +253,10 @@ def main():
                                           'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
                 temp_user_data.temp_data(user_id)[user_id][0] = 11
             elif call.data == 'confirm3':
-                bot.send_message(user_id, 'Подписка на 1 месяц, за 1199₽\n\n'
+                bot.send_message(user_id, 'Подписка на 1 год, за 1199₽\n\n'
                                           'Вам необходимо отправить 1199₽ по номеру карты - 2202206843372132 - Артем Сергеевич Г.\n\n'
                                           'После перевода вам необходимо отправить сообщение с вашими ФИО, мы проверим информацию и выдадим подписку!')
                 temp_user_data.temp_data(user_id)[user_id][0] = 12
-            elif call.data == 'accept':
-                bot.send_message(chat_id=int(db_actions.get_user_id()),
-                                 text='Оплата принята!\n\n'
-                                      'Можете пользоваться ботом!')
-            elif call.data == 'deny':
-                bot.send_message(db_actions.get_user_id(),
-                                 'Оплата не принята! Попробуйте еще раз!')
-        else:
-            print(db_actions.get_user_id())
-            bot.send_message(user_id, 'Введите /start для запуска бота')
 
     bot.polling(none_stop=True)
 

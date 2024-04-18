@@ -108,8 +108,8 @@ class Bot_inline_btns:
         self.__markup.add(yes, cancel)
         return self.__markup
 
-    def manager_btns(self):
-        accept = types.InlineKeyboardButton('Подтвердить!', callback_data='accept')
-        deny = types.InlineKeyboardButton('Отклонить!', callback_data='deny')
+    def manager_btns(self, user_id):
+        accept = types.InlineKeyboardButton('Подтвердить!', callback_data=f'accept{user_id}')
+        deny = types.InlineKeyboardButton('Отклонить!', callback_data=f'deny{user_id}')
         self.__markup.add(accept, deny)
         return self.__markup
