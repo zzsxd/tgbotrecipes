@@ -24,7 +24,6 @@ class DB:
                         CREATE TABLE users(
                         row_id INTEGER primary key autoincrement not null,
                         user_id INTEGER,
-                        topic_review_id INTEGER,
                         first_name TEXT,
                         last_name TEXT,
                         nick_name TEXT,
